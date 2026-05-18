@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title> ADMIN DASHBOARD</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a192f 0%, #0c2d4a 100%);
+            font-family: 'Courier New', monospace;
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .grid-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 100, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 100, 255, 0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .dashboard {
+            position: relative;
+            z-index: 10;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(0, 30, 60, 0.8);
+            border-radius: 15px;
+            border: 1px solid #00aaff;
+            box-shadow: 0 0 20px rgba(0, 170, 255, 0.3);
+            backdrop-filter: blur(5px);
+        }
+
+        .header h1 {
+            color: #00aaff;
+            font-size: 2rem;
+            text-shadow: 0 0 10px #00aaff;
+            letter-spacing: 3px;
+        }
+
+        .header p {
+            color: #88ddff;
+            margin-top: 10px;
+        }
+
+        .admin-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background: rgba(0, 30, 60, 0.7);
+            backdrop-filter: blur(8px);
+            border-radius: 20px;
+            border: 1px solid #00aaff;
+            padding: 20px;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 25px rgba(0, 170, 255, 0.5);
+            border-color: #33ccff;
+        }
+
+        .card-title {
+            color: #00aaff;
+            font-size: 1.3rem;
+            border-bottom: 2px solid #00aaff;
+            display: inline-block;
+            margin-bottom: 15px;
+            padding-bottom: 5px;
+        }
+
+        .info-row {
+            margin: 12px 0;
+            color: #bbddff;
+            font-size: 0.9rem;
+        }
+
+        .info-row span {
+            color: #00ccff;
+            font-weight: bold;
+        }
+
+        .contact-btn {
+            width: 100%;
+            background: linear-gradient(45deg, #0044aa, #0066cc);
+            border: none;
+            padding: 18px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+            font-family: monospace;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 0 15px rgba(0, 100, 255, 0.5);
+            margin-bottom: 30px;
+            letter-spacing: 2px;
+        }
+
+        .contact-btn:hover {
+            background: linear-gradient(45deg, #0066ff, #0088ff);
+            transform: scale(1.02);
+            box-shadow: 0 0 30px #0088ff;
+        }
+
+        /* VIRUS OVERLAY */
+        .virus-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+        }
+
+        .virus-header {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            color: #ff0000;
+            font-size: 2rem;
+            font-weight: bold;
+            text-shadow: 0 0 20px red;
+            z-index: 1010;
+            animation: glitchText 0.3s infinite;
+        }
+
+        @keyframes glitchText {
+            0%, 100% { transform: skew(0deg); opacity: 1; }
+            50% { transform: skew(5deg); opacity: 0.8; text-shadow: -2px 0 red, 2px 0 blue; }
+        }
+
+        .virus-sub {
+            position: absolute;
+            top: 100px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            color: #ff6666;
+            font-size: 1rem;
+            z-index: 1010;
+        }
+
+        .bouncing-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .bouncing-video {
+            position: absolute;
+            width: 180px;
+            cursor: pointer;
+            border-radius: 12px;
+            box-shadow: 0 0 15px rgba(255,0,0,0.7);
+            transition: 0.05s linear;
+            z-index: 1005;
+        }
+
+        .bouncing-video video {
+            width: 100%;
+            border-radius: 12px;
+            background: black;
+        }
+
+        @media (max-width: 600px) {
+            .bouncing-video { width: 120px; }
+            .virus-header { font-size: 1.2rem; top: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="grid-overlay"></div>
+
+<div class="dashboard">
+    <div class="header">
+        <h1>YOBSZ ADMIN DASHBOARD </h1>
+        <p>| SISTEM KEAMANAN TERTINGGI | NANXCHENKER DOMAIN |</p>
+    </div>
+
+    <div class="admin-grid">
+        <div class="card">
+            <div class="card-title">👤 INFO ADMIN UTAMA</div>
+            <div class="info-row">> NAMA: <span>NANXCHENKER [MUTLAK]</span></div>
+            <div class="info-row">> ROLE: <span>PEMIMPIN ABYSS</span></div>
+            <div class="info-row">> STATUS: <span style="color:#00ff00;">ONLINE · SUPER ADMIN</span></div>
+            <div class="info-row">> ID: <span>ABYSS-⚡-XNX-999</span></div>
+        </div>
+        <div class="card">
+            <div class="card-title">🛡️ KEAMANAN & DOMAIN</div>
+            <div class="info-row">> DOMAIN: <span>abyss.blue/admin</span></div>
+            <div class="info-row">> ENKRIPSI: <span>AES-512 BLUE SHIELD</span></div>
+            <div class="info-row">> FIREWALL: <span>NANXCHENKER WALL v3</span></div>
+            <div class="info-row">> ANCAMAN: <span>0 (TERNETRALISIR)</span></div>
+        </div>
+        <div class="card">
+            <div class="card-title">📡 SISTEM MONITORING</div>
+            <div class="info-row">> DEVICE TERPANTAU: <span id="deviceCount">1.592</span></div>
+            <div class="info-row">> AKSES LOG: <span>TERENKRIPSI</span></div>
+            <div class="info-row">> KONFIRMASI: <span>MUTLAK</span></div>
+            <div class="info-row">> ALERT: <span style="color:#ffaa00;">STANDBY</span></div>
+        </div>
+    </div>
+
+    <button class="contact-btn" id="hubungiBtn">📞 HUBUNGI ADMIN 📞</button>
+</div>
+
+<div id="virusOverlay" class="virus-overlay">
+    <div class="virus-header">⚠️ VIRUS DETECTED ⚠️</div>
+    <div class="virus-sub">YOU ARE IDIOT 😈😈😈 | SISTEM CRASH</div>
+    <div id="bouncingContainer" class="bouncing-container"></div>
+    <!-- Tombol HANCURKAN VIRUS telah dihapus -->
+</div>
+
+<script>
+    (function() {
+        // ========== KONFIGURASI ==========
+        const VIDEO_SRC = "You are an idiot HAHAHAHAHA!.mp4";
+        const CLONE_COUNT = 10;          // LANGSUNG 10 CLONE
+        const MP3_FILE = "You are an idiot HAHAHAHAHA_ [b2pD0B9Rfps].mp3";  // <--- GANTI DENGAN NAMA FILE MP3 LO
+        let activeVideos = [];
+        let animationId = null;
+        let alarmAudio = null;            // Audio object untuk MP3
+
+        const hubungiBtn = document.getElementById('hubungiBtn');
+        const virusOverlay = document.getElementById('virusOverlay');
+        const bouncingContainer = document.getElementById('bouncingContainer');
+        const deviceCountSpan = document.getElementById('deviceCount');
+
+        // Random device count (biar hidup)
+        function updateDeviceCount() {
+            const count = Math.floor(Math.random() * 3000) + 1000;
+            deviceCountSpan.innerText = count;
+        }
+        updateDeviceCount();
+        setInterval(updateDeviceCount, 4000);
+
+        // ========== AUDIO MP3 ==========
+        function playAlarmLoop() {
+            if (!alarmAudio) {
+                alarmAudio = new Audio(MP3_FILE);
+                alarmAudio.loop = true;
+                alarmAudio.volume = 1.0; // bisa disesuaikan
+            }
+            // Reset kalau sudah pernah di-pause
+            alarmAudio.currentTime = 0;
+            alarmAudio.play().catch(e => console.warn("MP3 play error:", e));
+        }
+
+        function stopAlarmLoop() {
+            if (alarmAudio) {
+                alarmAudio.pause();
+                alarmAudio.currentTime = 0;
+            }
+        }
+
+        // ========== BOUNCING VIDEO LOGIC ==========
+        function getViewportBounds(width, height) {
+            return {
+                maxX: window.innerWidth - width,
+                maxY: window.innerHeight - height
+            };
+        }
+
+        function updateBouncingPositions() {
+            for (let v of activeVideos) {
+                let newX = v.x + v.vx;
+                let newY = v.y + v.vy;
+                const { maxX, maxY } = getViewportBounds(v.width, v.height);
+                if (newX <= 0) { newX = 0; v.vx = -v.vx; }
+                else if (newX >= maxX) { newX = maxX; v.vx = -v.vx; }
+                if (newY <= 0) { newY = 0; v.vy = -v.vy; }
+                else if (newY >= maxY) { newY = maxY; v.vy = -v.vy; }
+                v.x = newX;
+                v.y = newY;
+                v.element.style.left = v.x + 'px';
+                v.element.style.top = v.y + 'px';
+            }
+        }
+
+        function animateBouncing() {
+            updateBouncingPositions();
+            animationId = requestAnimationFrame(animateBouncing);
+        }
+
+        function createBouncingVideo() {
+            const div = document.createElement('div');
+            div.className = 'bouncing-video';
+            const video = document.createElement('video');
+            video.src = VIDEO_SRC;
+            video.autoplay = true;
+            video.loop = true;
+            video.muted = true;
+            video.playsInline = true;
+            video.addEventListener('click', () => { video.muted = !video.muted; });
+            div.appendChild(video);
+            const width = 180;
+            const height = 101;
+            div.style.width = width + 'px';
+            video.style.width = '100%';
+
+            const { maxX, maxY } = getViewportBounds(width, height);
+            const startX = Math.random() * Math.max(0, maxX);
+            const startY = Math.random() * Math.max(0, maxY);
+            const vx = (Math.random() * 3 + 1.5) * (Math.random() > 0.5 ? 1 : -1);
+            const vy = (Math.random() * 3 + 1.5) * (Math.random() > 0.5 ? 1 : -1);
+
+            div.style.left = startX + 'px';
+            div.style.top = startY + 'px';
+            bouncingContainer.appendChild(div);
+            video.play().catch(e => console.log("autoplay muted"));
+
+            return { element: div, x: startX, y: startY, vx: vx, vy: vy, width: width, height: height, video: video };
+        }
+
+        function clearAllVideos() {
+            for (let v of activeVideos) {
+                if (v.element) v.element.remove();
+                if (v.video) { v.video.pause(); v.video.src = ''; }
+            }
+            activeVideos = [];
+            bouncingContainer.innerHTML = '';
+        }
+
+        function spawnAllClones() {
+            for (let i = 0; i < CLONE_COUNT; i++) {
+                const newVideo = createBouncingVideo();
+                activeVideos.push(newVideo);
+            }
+        }
+
+        // ========== AKTIVASI VIRUS ==========
+        function activateVirus() {
+            virusOverlay.style.display = 'flex';
+            clearAllVideos();
+            // Mainkan MP3 loop
+            playAlarmLoop();
+            // Munculin 10 clone langsung
+            spawnAllClones();
+            if (animationId) cancelAnimationFrame(animationId);
+            animationId = requestAnimationFrame(animateBouncing);
+            if (navigator.vibrate) navigator.vibrate([500, 200, 500]);
+
+            // Fake alerts
+            for (let i = 0; i < 3; i++) {
+                setTimeout(() => {
+                    const fake = document.createElement('div');
+                    fake.innerText = '⚠️ VIRUS DETECTED! YOU ARE IDIOT 😈⚠️';
+                    fake.style.position = 'fixed';
+                    fake.style.bottom = '20%';
+                    fake.style.left = '10%';
+                    fake.style.background = 'black';
+                    fake.style.color = 'red';
+                    fake.style.padding = '10px';
+                    fake.style.border = '2px solid red';
+                    fake.style.zIndex = '2000';
+                    fake.style.fontFamily = 'monospace';
+                    document.body.appendChild(fake);
+                    setTimeout(() => fake.remove(), 1500);
+                }, i * 1000);
+            }
+        }
+
+        // Tidak ada deactivateVirus karena tombol close dihilangkan.
+        // Jika ingin tetap bisa keluar, bisa pakai reload halaman, tapi sesuai permintaan tombol dihilangkan.
+
+        window.addEventListener('resize', () => {
+            if (virusOverlay.style.display === 'flex') {
+                for (let v of activeVideos) {
+                    const { maxX, maxY } = getViewportBounds(v.width, v.height);
+                    v.x = Math.min(v.x, maxX);
+                    v.y = Math.min(v.y, maxY);
+                    v.x = Math.max(v.x, 0);
+                    v.y = Math.max(v.y, 0);
+                    v.element.style.left = v.x + 'px';
+                    v.element.style.top = v.y + 'px';
+                }
+            }
+        });
+
+        hubungiBtn.addEventListener('click', () => { activateVirus(); });
+
+        console.log("%c🔷 ABYSS BLUE DASHBOARD — 10 CLONE + MP3 VIRUS (Tanpa Tombol Close) 🔷", "color: #00aaff; font-size: 16px;");
+        console.log("%cTEKAN HUBUNGI ADMIN = VIRUS + 10 VIDEO BOUNCING + MP3 (tidak bisa ditutup)", "color: #ff6666;");
+    })();
+</script>
+</body>
+</html>
